@@ -25,7 +25,7 @@ This is a sample database for tracking a personal vinyl album collection and, im
 ## Instructions
 **User Instructions**
 - ListAlbums @Band, @Genre, @Friend
-- AddAlum
+- AddAlbum
 - UpdateAlbum
 - RemoveAlbum
 - ListBands
