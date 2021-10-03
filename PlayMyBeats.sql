@@ -2,13 +2,16 @@
     Play My Beats Sample Commands
 */
 
+-- Get a list of all albums
 EXECUTE ReadAlbums
 GO
 
 
+-- Get a list of albums by Neil Young
 EXECUTE ReadAlbums @BandName = "Neil Young"
 GO
 
+-- Get a list of albums borroed by Shawn
 EXECUTE ReadAlbums @FriendName = "Shawn"
 GO
 
