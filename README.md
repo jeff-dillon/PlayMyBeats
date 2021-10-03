@@ -17,28 +17,18 @@ This is a sample database for tracking a personal vinyl album collection and, im
 
 **Technical Details**
 
-- DDL for creating database tables 
+- DDL for creating database tables
 - DML script to load sample data
 - Stored Procedures providing CRUD funtionality - for use by a front-end application
 - Documentation of the Stored Procedures
 
 ## Instructions
 **User Instructions**
-- ListAlbums @Band, @Genre, @Friend
-- AddAlbum
-- UpdateAlbum
-- RemoveAlbum
-- ListBands
-- AddBand
-- RemoveBand
-- UpdateBand
-- ListFriends
-- AddFriend
-- RemoveFriend
-- UpdateFriend
-- ListLoans
-- AddLoan
-- RemoveLoan
+
+| Feature | Command |
+| List Bands | EXECUTE ListBands |
+| List All Albums | EXECUTE ListAlbums |
+
 
 
 **Technical Instructions**
