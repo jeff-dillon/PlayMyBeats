@@ -27,13 +27,13 @@ This is a sample database for tracking a personal vinyl album collection and, im
 
 | Feature | Command |
 | ----------- | ----------- |
-| List All Albums | EXECUTE ListAlbums |
-| List Albums by Band | EXECUTE ListAlbums @BandName = "band name" |
-| List Albums by Friend | EXECUTE ListAlbums @FriendName = "friend name" |
-| Add Album to Collection | EXECUTE CreateAlbum @AlbumName = "album name", @BandName = "band name" |
-| Remove Album from Collection | EXECUTE DeleteAlbum @AlbumName = "album name" |
-| Loan Album to Friend | EXECUTE LoanAlbum @AlbumName = "album name", @FriendName = "friend name" |
-| Return Album from Friend | EXECUTE ReturnAlbum @AlbumName = "album name" |
+| List All Albums | ListAlbums |
+| List Albums by Band | ListAlbums @BandName = "band name" |
+| List Albums by Friend | ListAlbums @FriendName = "friend name" |
+| Add Album to Collection | CreateAlbum @AlbumName = "album name", @BandName = "band name" |
+| Remove Album from Collection | DeleteAlbum @AlbumName = "album name" |
+| Loan Album to Friend | LoanAlbum @AlbumName = "album name", @FriendName = "friend name" |
+| Return Album from Friend | ReturnAlbum @AlbumName = "album name" |
 
 
 **Technical Instructions**
