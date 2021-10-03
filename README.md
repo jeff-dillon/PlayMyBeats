@@ -26,8 +26,9 @@ This is a sample database for tracking a personal vinyl album collection and, im
 **User Instructions**
 
 | Feature | Command |
-| List Bands | EXECUTE ListBands |
+| ----------- | ----------- |
 | List All Albums | EXECUTE ListAlbums |
+| List Albums by Band | EXECUTE ListAlbums @BandName = 'band name' |
 
 
 
