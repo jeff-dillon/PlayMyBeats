@@ -4,7 +4,7 @@
 
 **Play My Beats**
 
-This is a sample database for tracking a personal vinyl album collection and, importantly, which friends have borrowed your records. This database tracks the bands and albums in a collection, along with information about the albums like condition, year issued, etc. You can easily add friends and track which albums they have borrowed.
+This is a sample database for tracking a personal vinyl album collection and, importantly, which friends have borrowed your records. By executing stored procedures, you can list the albums in your collection, list albums borrowed by friends, add and remove albums to your collection, and loan and return albums.
 
 ## Features
 
