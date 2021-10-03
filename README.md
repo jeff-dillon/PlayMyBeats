@@ -29,7 +29,11 @@ This is a sample database for tracking a personal vinyl album collection and, im
 | ----------- | ----------- |
 | List All Albums | EXECUTE ListAlbums |
 | List Albums by Band | EXECUTE ListAlbums @BandName = "band name" |
-| List Albums by Borrower | EXECUTE ListAlbums @BorrowerName = "borrower name" |
+| List Albums by Friend | EXECUTE ListAlbums @FriendName = "friend name" |
+| Add Album to Collection | EXECUTE CreateAlbum @AlbumName = "album name", @BandName = "band name" |
+| Remove Album from Collection | EXECUTE DeleteAlbum @AlbumName = "album name" |
+| Loan Album to Friend | EXECUTE LoanAlbum @AlbumName = "album name", @FriendName = "friend name" |
+| Return Album from Friend | EXECUTE ReturnAlbum @AlbumName = "album name" |
 
 
 **Technical Instructions**
