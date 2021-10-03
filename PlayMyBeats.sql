@@ -15,9 +15,11 @@ GO
 EXECUTE ReadAlbums @FriendName = "Shawn"
 GO
 
+-- Add an album to the collection
 EXECUTE CreateAlbum @AlbumName = "Harvest Moon", @BandName = "Neil Young"
 GO
 
+-- Remove an album from the collection
 EXECUTE DeleteAlbum @AlbumName = "Harvest Moon"
 GO
 
