@@ -116,3 +116,128 @@ BEGIN
 END
 GO
 
+-- Create a new stored procedure called 'CreateAlbum' in schema 'dbo'
+-- Drop the stored procedure if it already exists
+IF EXISTS (
+SELECT *
+    FROM INFORMATION_SCHEMA.ROUTINES
+WHERE SPECIFIC_SCHEMA = N'dbo'
+    AND SPECIFIC_NAME = N'CreateAlbum'
+    AND ROUTINE_TYPE = N'PROCEDURE'
+)
+DROP PROCEDURE dbo.CreateAlbum
+GO
+CREATE PROCEDURE dbo.CreateAlbum
+    @AlbumName NVARCHAR(255),
+    @BandName NVARCHAR(255)
+AS
+BEGIN
+    BEGIN TRY
+    IF((@BandName IS NULL OR @AlbumName IS NULL) OR (@BandName = '' OR @AlbumName = ''))
+    BEGIN
+        RAISERROR('@BandName and @AlbumName cannot be null or empty',18,0) 
+    END
+    ELSE
+    BEGIN
+        DECLARE @BandCount INT = (SELECT COUNT(1) FROM Bands WHERE BandName = @BandName) 
+        DECLARE @BandId INT
+        IF(@BandCount = 0)
+        BEGIN
+            INSERT INTO Bands VALUES (@BandName)
+            SET @BandId = (SELECT scope_identity())
+        END
+        ELSE
+        BEGIN
+           SET @BandId = (SELECT Bands.BandId FROM Bands WHERE Bands.BandName = @BandName)
+        END
+        INSERT INTO Albums VALUES (@BandId, @AlbumName)
+    END
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT; 
+        SELECT @ErrorMessage = ERROR_MESSAGE(), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE(); 
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState ); 
+    END CATCH
+
+END
+GO
+
+-- Create a new stored procedure called 'DeleteAlbum' in schema 'dbo'
+-- Drop the stored procedure if it already exists
+IF EXISTS (
+SELECT *
+    FROM INFORMATION_SCHEMA.ROUTINES
+WHERE SPECIFIC_SCHEMA = N'dbo'
+    AND SPECIFIC_NAME = N'DeleteAlbum'
+    AND ROUTINE_TYPE = N'PROCEDURE'
+)
+DROP PROCEDURE dbo.DeleteAlbum
+GO
+
+CREATE PROCEDURE dbo.DeleteAlbum
+    @AlbumName NVARCHAR(255)
+AS
+BEGIN
+    DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE AlbumName = @AlbumName)
+    DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId;
+    DELETE FROM Albums WHERE Albums.AlbumId = @AlbumId
+END
+GO
+
+
+-- Create a new stored procedure called 'UpdateAlbum' in schema 'dbo'
+-- Drop the stored procedure if it already exists
+IF EXISTS (
+SELECT *
+    FROM INFORMATION_SCHEMA.ROUTINES
+WHERE SPECIFIC_SCHEMA = N'dbo'
+    AND SPECIFIC_NAME = N'UpdateAlbum'
+    AND ROUTINE_TYPE = N'PROCEDURE'
+)
+DROP PROCEDURE dbo.UpdateAlbum
+GO
+
+CREATE PROCEDURE dbo.UpdateAlbum
+    @OldAlbumName NVARCHAR(255),
+    @NewAlbumName NVARCHAR(255)
+AS
+BEGIN
+    UPDATE Albums SET Albums.AlbumName = @NewAlbumName WHERE Albums.AlbumName = @OldAlbumName
+END
+GO
+
+-- Create a new stored procedure called 'LoanAlbum' in schema 'dbo'
+-- Drop the stored procedure if it already exists
+IF EXISTS (
+SELECT *
+    FROM INFORMATION_SCHEMA.ROUTINES
+WHERE SPECIFIC_SCHEMA = N'dbo'
+    AND SPECIFIC_NAME = N'LoanAlbum'
+    AND ROUTINE_TYPE = N'PROCEDURE'
+)
+DROP PROCEDURE dbo.LoanAlbum
+GO
+-- Create the stored procedure in the specified schema
+CREATE PROCEDURE dbo.LoanAlbum
+    @AlbumName NVARCHAR(255),
+    @FriendName NVARCHAR(255)
+AS
+BEGIN
+    DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName);
+    DECLARE @FriendId INT = (SELECT Friends.FriendId FROM Friends WHERE Friends.FriendName = @FriendName);
+
+    BEGIN TRY
+        IF EXISTS (SELECT * FROM Loans WHERE AlbumId = @AlbumId)
+            RAISERROR('Album already loaned out',18,0)
+        
+        INSERT INTO Loans VALUES (@FriendId, @AlbumId);
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT; 
+        SELECT @ErrorMessage = ERROR_MESSAGE(), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE(); 
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState ); 
+    END CATCH
+
+    
+END
+GO
