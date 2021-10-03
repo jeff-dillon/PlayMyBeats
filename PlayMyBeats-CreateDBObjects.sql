@@ -241,3 +241,26 @@ BEGIN
     
 END
 GO
+
+
+-- Create a new stored procedure called 'ReturnAlbum' in schema 'dbo'
+-- Drop the stored procedure if it already exists
+IF EXISTS (
+SELECT *
+    FROM INFORMATION_SCHEMA.ROUTINES
+WHERE SPECIFIC_SCHEMA = N'dbo'
+    AND SPECIFIC_NAME = N'ReturnAlbum'
+    AND ROUTINE_TYPE = N'PROCEDURE'
+)
+DROP PROCEDURE dbo.ReturnAlbum
+GO
+-- Create the stored procedure in the specified schema
+CREATE PROCEDURE dbo.ReturnAlbum
+    @AlbumName NVARCHAR(255)
+AS
+BEGIN
+    DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName)
+    DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId
+END
+GO
+
