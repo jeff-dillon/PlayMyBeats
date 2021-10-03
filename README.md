@@ -28,8 +28,8 @@ This is a sample database for tracking a personal vinyl album collection and, im
 | Feature | Command |
 | ----------- | ----------- |
 | List All Albums | EXECUTE ListAlbums |
-| List Albums by Band | EXECUTE ListAlbums @BandName = 'band name' |
-
+| List Albums by Band | EXECUTE ListAlbums @BandName = "band name" |
+| List Albums by Borrower | EXECUTE ListAlbums @BorrowerName = "borrower name" |
 
 
 **Technical Instructions**
