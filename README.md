@@ -8,22 +8,12 @@ This is a sample database for tracking a personal vinyl album collection and, im
 
 ## Features
 
-**App Features**
-
 - Maintain lists of Bands, Albums, and Friends
 - Add new albums to your collection
 - Track what you have loaned to friends
 
 
-**Technical Details**
-
-- DDL for creating database tables
-- DML script to load sample data
-- Stored Procedures providing CRUD funtionality - for use by a front-end application
-- Documentation of the Stored Procedures
-
-## Instructions
-**User Instructions**
+## User Instructions
 
 | Feature | Command |
 | ----------- | ----------- |
@@ -37,9 +27,10 @@ This is a sample database for tracking a personal vinyl album collection and, im
 | Return Album from Friend | ReturnAlbum @AlbumName = "album name" |
 
 
-**Technical Instructions**
+## Technical Instructions
 
 - Requires MS SQL Server
-- Execute the DDL to create the database objects
-- Execute the DML to load the sample data
+- Execute the PlayMyBeats-CreateDBObjects.sql script to create the database objects
+- Execute the PlayMyBeats-LoadSampleData.sql script to load the sample data
+- Execute commands in the PlayMyBeats.sql file to test out the functionality
 
