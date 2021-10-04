@@ -34,3 +34,23 @@ This is a sample database for tracking a personal vinyl album collection and, im
 - Execute the PlayMyBeats-LoadSampleData.sql script to load the sample data
 - Execute commands in the PlayMyBeats.sql file to test out the functionality
 
+## Project Requirements
+
+**Group 1: Reading Data from a Database**
+
+- Write a SELECT query that uses a WHERE clause.
+- Write a  SELECT query that uses an OR and an AND operator.
+- Write a  SELECT query that filters NULL rows using IS NOT NULL.
+- Write a  SELECT query that utilizes a JOIN.
+- Write a  SELECT query that utilizes a JOIN with 3 or more tables.
+- Write a  SELECT query that utilizes a LEFT JOIN.
+- Write a  SELECT query that utilizes a variable in the WHERE clause.
+
+**Group 2: Updating/Deleting Data from a Database**
+
+- Write a DML statement that UPDATEs a set of rows with a WHERE clause. The values used in the WHERE clause should be a variable.
+- Write a DML statement that DELETEs a set of rows with a WHERE clause. The values used in the WHERE clause should be a variable.
+
+**Group 3: Optimizing a Database**
+
+- Design a NONCLUSTERED INDEX with ONE KEY COLUMN that improves the performance of one of the above queries.
