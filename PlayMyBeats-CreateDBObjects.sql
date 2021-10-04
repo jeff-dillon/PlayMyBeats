@@ -2,27 +2,53 @@
  * Author: Jeff Dillon
  * Date Created: 10/3/2021
  * Description: DDL PlayMyBeats app
+ *
+ * Tables:
+ *    Bands (BandId, BandName)
+ *    Albums (AlbumId, BandId, AlbumName)
+ *    Friends (FriendId, FriendName)
+ *    Loans (FriendId, AlbumId)
+ *
+ * Indexes:
+ *    IX_FriendName
+ *    IX_AlbumName
+ *
+ * Stored Procedures
+ *    ReadAlbums @BandName, @FriendName
+ *    CreateAlbum @BandName, @AlbumName
+ *    DeleteAlbum @AlbumName
+ *    UpdateAlbum @OldAlbumName, @NewAlbumName
+ *    LoanAlbum @AlbumName, @FriendName
+ *
 */
 
 
--- Create a new table called '[Loans]' in schema '[dbo]'
--- Drop the table if it already exists
+/******************************************************
+
+    Tables
+
+******************************************************/
+
+
 IF OBJECT_ID('[dbo].[Loans]', 'U') IS NOT NULL
 DROP TABLE [dbo].[Loans]
 GO
 
--- Create a new table called '[Albums]' in schema '[dbo]'
--- Drop the table if it already exists
+
 IF OBJECT_ID('[dbo].[Albums]', 'U') IS NOT NULL
 DROP TABLE [dbo].[Albums]
 GO
 
--- Create a new table called '[Bands]' in schema '[dbo]'
--- Drop the table if it already exists
+
 IF OBJECT_ID('[dbo].[Bands]', 'U') IS NOT NULL
 DROP TABLE [dbo].[Bands]
 GO
--- Create the table in the specified schema
+
+IF OBJECT_ID('[dbo].[Friends]', 'U') IS NOT NULL
+DROP TABLE [dbo].[Friends]
+GO
+
+
 CREATE TABLE [dbo].[Bands]
 (
     [BandId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
@@ -31,7 +57,6 @@ CREATE TABLE [dbo].[Bands]
 GO
 
 
--- Create the table in the specified schema
 CREATE TABLE [dbo].[Albums]
 (
     [AlbumId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
@@ -41,12 +66,7 @@ CREATE TABLE [dbo].[Albums]
 );
 GO
 
--- Create a new table called '[Friends]' in schema '[dbo]'
--- Drop the table if it already exists
-IF OBJECT_ID('[dbo].[Friends]', 'U') IS NOT NULL
-DROP TABLE [dbo].[Friends]
-GO
--- Create the table in the specified schema
+
 CREATE TABLE [dbo].[Friends]
 (
     [FriendId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
@@ -54,49 +74,72 @@ CREATE TABLE [dbo].[Friends]
 );
 GO
 
--- Create a new table called '[Loans]' in schema '[dbo]'
--- Drop the table if it already exists
-IF OBJECT_ID('[dbo].[Loans]', 'U') IS NOT NULL
-DROP TABLE [dbo].[Loans]
-GO
--- Create the table in the specified schema
+
 CREATE TABLE [dbo].[Loans]
 (
-    [FriendId] INT NOT NULL, 
+    [FriendId] INT NOT NULL,
     [AlbumId] INT NOT NULL,
     FOREIGN KEY(FriendId) REFERENCES Friends(FriendId),
     FOREIGN KEY(AlbumId) REFERENCES Albums(AlbumId)
 );
 GO
 
-CREATE NONCLUSTERED INDEX IX_FriendName ON [dbo].[Friends] ([FriendName] DESC) 
+
+/******************************************************
+
+    Indexes
+
+******************************************************/
+
+
+CREATE NONCLUSTERED INDEX IX_FriendName ON [dbo].[Friends] ([FriendName] DESC)
 GO
 
 
-CREATE NONCLUSTERED INDEX IX_BandName ON [dbo].[Bands] ([BandName] DESC) 
+CREATE NONCLUSTERED INDEX IX_BandName ON [dbo].[Bands] ([BandName] DESC)
 GO
 
--- Create a new stored procedure called 'ReadAlbums' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-    FROM INFORMATION_SCHEMA.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'ReadAlbums'
-    AND ROUTINE_TYPE = N'PROCEDURE'
-)
+
+/******************************************************
+
+    Stored Procedures
+
+******************************************************/
+
+
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'ReadAlbums' AND ROUTINE_TYPE = N'PROCEDURE')
 DROP PROCEDURE dbo.ReadAlbums
 GO
 
-CREATE PROCEDURE dbo.ReadAlbums
-    @BandName NVARCHAR(255) = NULL,
-    @FriendName NVARCHAR(255) = NULL
-AS
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'CreateAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE dbo.CreateAlbum
+GO
+
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'DeleteAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE dbo.DeleteAlbum
+GO
+
+IF EXISTS ( SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'UpdateAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE dbo.UpdateAlbum
+GO
+
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'LoanAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE dbo.LoanAlbum
+GO
+
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'ReturnAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE dbo.ReturnAlbum
+GO
+
+
+
+
+CREATE PROCEDURE dbo.ReadAlbums @BandName NVARCHAR(255) = NULL, @FriendName NVARCHAR(255) = NULL AS
 BEGIN
     IF @FriendName IS NULL
     BEGIN
         SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', ISNULL(Friends.FriendName,'') AS 'LoanedTo'
-        FROM Albums 
+        FROM Albums
             INNER JOIN Bands ON Albums.BandId = Bands.BandId
             LEFT JOIN Loans ON Albums.AlbumId = Loans.AlbumId
             LEFT JOIN Friends ON Loans.FriendId = Friends.FriendId
@@ -106,7 +149,7 @@ BEGIN
     ELSE
     BEGIN
         SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', ISNULL(Friends.FriendName,'') AS 'LoanedTo'
-        FROM Albums 
+        FROM Albums
             INNER JOIN Bands ON Albums.BandId = Bands.BandId
             LEFT JOIN Loans ON Albums.AlbumId = Loans.AlbumId
             LEFT JOIN Friends ON Loans.FriendId = Friends.FriendId
@@ -116,30 +159,16 @@ BEGIN
 END
 GO
 
--- Create a new stored procedure called 'CreateAlbum' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-    FROM INFORMATION_SCHEMA.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'CreateAlbum'
-    AND ROUTINE_TYPE = N'PROCEDURE'
-)
-DROP PROCEDURE dbo.CreateAlbum
-GO
-CREATE PROCEDURE dbo.CreateAlbum
-    @AlbumName NVARCHAR(255),
-    @BandName NVARCHAR(255)
-AS
+CREATE PROCEDURE dbo.CreateAlbum @AlbumName NVARCHAR(255), @BandName NVARCHAR(255) AS
 BEGIN
     BEGIN TRY
     IF((@BandName IS NULL OR @AlbumName IS NULL) OR (@BandName = '' OR @AlbumName = ''))
     BEGIN
-        RAISERROR('@BandName and @AlbumName cannot be null or empty',18,0) 
+        RAISERROR('@BandName and @AlbumName cannot be null or empty',18,0)
     END
     ELSE
     BEGIN
-        DECLARE @BandCount INT = (SELECT COUNT(1) FROM Bands WHERE BandName = @BandName) 
+        DECLARE @BandCount INT = (SELECT COUNT(1) FROM Bands WHERE BandName = @BandName)
         DECLARE @BandId INT
         IF(@BandCount = 0)
         BEGIN
@@ -154,29 +183,16 @@ BEGIN
     END
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT; 
-        SELECT @ErrorMessage = ERROR_MESSAGE(), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE(); 
-        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState ); 
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
+        SELECT @ErrorMessage = ERROR_MESSAGE(), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE();
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState );
     END CATCH
 
 END
 GO
 
--- Create a new stored procedure called 'DeleteAlbum' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-    FROM INFORMATION_SCHEMA.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'DeleteAlbum'
-    AND ROUTINE_TYPE = N'PROCEDURE'
-)
-DROP PROCEDURE dbo.DeleteAlbum
-GO
 
-CREATE PROCEDURE dbo.DeleteAlbum
-    @AlbumName NVARCHAR(255)
-AS
+CREATE PROCEDURE dbo.DeleteAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId;
@@ -185,39 +201,13 @@ END
 GO
 
 
--- Create a new stored procedure called 'UpdateAlbum' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-    FROM INFORMATION_SCHEMA.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'UpdateAlbum'
-    AND ROUTINE_TYPE = N'PROCEDURE'
-)
-DROP PROCEDURE dbo.UpdateAlbum
-GO
 
-CREATE PROCEDURE dbo.UpdateAlbum
-    @OldAlbumName NVARCHAR(255),
-    @NewAlbumName NVARCHAR(255)
-AS
+CREATE PROCEDURE dbo.UpdateAlbum @OldAlbumName NVARCHAR(255), @NewAlbumName NVARCHAR(255) AS
 BEGIN
     UPDATE Albums SET Albums.AlbumName = @NewAlbumName WHERE Albums.AlbumName = @OldAlbumName
 END
 GO
 
--- Create a new stored procedure called 'LoanAlbum' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-    FROM INFORMATION_SCHEMA.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'LoanAlbum'
-    AND ROUTINE_TYPE = N'PROCEDURE'
-)
-DROP PROCEDURE dbo.LoanAlbum
-GO
--- Create the stored procedure in the specified schema
 CREATE PROCEDURE dbo.LoanAlbum
     @AlbumName NVARCHAR(255),
     @FriendName NVARCHAR(255)
@@ -233,34 +223,18 @@ BEGIN
         INSERT INTO Loans VALUES (@FriendId, @AlbumId);
     END TRY
     BEGIN CATCH
-        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT; 
-        SELECT @ErrorMessage = ERROR_MESSAGE(), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE(); 
-        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState ); 
+        DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
+        SELECT @ErrorMessage = ERROR_MESSAGE(), @ErrorSeverity = ERROR_SEVERITY(), @ErrorState = ERROR_STATE();
+        RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState );
     END CATCH
 
     
 END
 GO
 
-
--- Create a new stored procedure called 'ReturnAlbum' in schema 'dbo'
--- Drop the stored procedure if it already exists
-IF EXISTS (
-SELECT *
-    FROM INFORMATION_SCHEMA.ROUTINES
-WHERE SPECIFIC_SCHEMA = N'dbo'
-    AND SPECIFIC_NAME = N'ReturnAlbum'
-    AND ROUTINE_TYPE = N'PROCEDURE'
-)
-DROP PROCEDURE dbo.ReturnAlbum
-GO
--- Create the stored procedure in the specified schema
-CREATE PROCEDURE dbo.ReturnAlbum
-    @AlbumName NVARCHAR(255)
-AS
+CREATE PROCEDURE dbo.ReturnAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId
 END
 GO
-
