@@ -26,7 +26,7 @@ INSERT INTO Albums VALUES (5, 'The Love Movement');
 INSERT INTO Albums VALUES (7, 'After The Goldrush');
 GO
 
-INSERT INTO Loans VALUES (1,1);
-INSERT INTO Loans VALUES (1,5);
-INSERT INTO Loans VALUES (2,2);
+INSERT INTO Loans (FriendId, AlbumId) VALUES (1,1);
+INSERT INTO Loans (FriendId, AlbumId) VALUES (1,5);
+INSERT INTO Loans (FriendId, AlbumId) VALUES (2,2);
 GO

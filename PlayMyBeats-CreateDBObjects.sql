@@ -79,6 +79,7 @@ CREATE TABLE [dbo].[Loans]
 (
     [FriendId] INT NOT NULL,
     [AlbumId] INT NOT NULL,
+    [LoanDate] DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(FriendId) REFERENCES Friends(FriendId),
     FOREIGN KEY(AlbumId) REFERENCES Albums(AlbumId)
 );
@@ -138,7 +139,8 @@ CREATE PROCEDURE dbo.ReadAlbums @BandName NVARCHAR(255) = NULL, @FriendName NVAR
 BEGIN
     IF @FriendName IS NULL
     BEGIN
-        SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', ISNULL(Friends.FriendName,'') AS 'LoanedTo'
+        SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', 
+            ISNULL(Friends.FriendName,'') AS 'LoanedTo', ISNULL(FORMAT(Loans.LoanDate, 'd', 'en-us'),'') AS 'LoanedSince'
         FROM Albums
             INNER JOIN Bands ON Albums.BandId = Bands.BandId
             LEFT JOIN Loans ON Albums.AlbumId = Loans.AlbumId
@@ -148,7 +150,8 @@ BEGIN
     END
     ELSE
     BEGIN
-        SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', ISNULL(Friends.FriendName,'') AS 'LoanedTo'
+        SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', ISNULL(Friends.FriendName,'') AS 'LoanedTo',
+        ISNULL(FORMAT(Loans.LoanDate, 'd', 'en-us'),'') AS 'LoanedSince'
         FROM Albums
             INNER JOIN Bands ON Albums.BandId = Bands.BandId
             LEFT JOIN Loans ON Albums.AlbumId = Loans.AlbumId
@@ -220,7 +223,7 @@ BEGIN
         IF EXISTS (SELECT * FROM Loans WHERE AlbumId = @AlbumId)
             RAISERROR('Album already loaned out',18,0)
         
-        INSERT INTO Loans VALUES (@FriendId, @AlbumId);
+        INSERT INTO Loans (FriendId, AlbumId) VALUES (@FriendId, @AlbumId);
     END TRY
     BEGIN CATCH
         DECLARE @ErrorMessage NVARCHAR(4000), @ErrorSeverity INT, @ErrorState INT;
