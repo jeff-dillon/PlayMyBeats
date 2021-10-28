@@ -1,4 +1,4 @@
-/* PlayMyBeats-CreateDBObjects.sql
+/* PlayMyBeats-Createpmbbjects.sql
  * Author: Jeff Dillon
  * Date Created: 10/3/2021
  * Description: DDL PlayMyBeats app
@@ -19,8 +19,13 @@
  *    DeleteAlbum @AlbumName
  *    UpdateAlbum @OldAlbumName, @NewAlbumName
  *    LoanAlbum @AlbumName, @FriendName
+ *    ReturnAlbum @AlbumName
  *
 */
+
+SET NOCOUNT ON;
+GO
+
 
 
 /******************************************************
@@ -30,26 +35,20 @@
 ******************************************************/
 
 
-IF OBJECT_ID('[dbo].[Loans]', 'U') IS NOT NULL
-DROP TABLE [dbo].[Loans]
-GO
+IF OBJECT_ID('Loans', 'U') IS NOT NULL
+    DROP TABLE Loans;
+
+IF OBJECT_ID('Albums', 'U') IS NOT NULL
+    DROP TABLE Albums;
+
+IF OBJECT_ID('Bands', 'U') IS NOT NULL
+    DROP TABLE Bands;
+
+IF OBJECT_ID('Friends', 'U') IS NOT NULL
+    DROP TABLE Friends;
 
 
-IF OBJECT_ID('[dbo].[Albums]', 'U') IS NOT NULL
-DROP TABLE [dbo].[Albums]
-GO
-
-
-IF OBJECT_ID('[dbo].[Bands]', 'U') IS NOT NULL
-DROP TABLE [dbo].[Bands]
-GO
-
-IF OBJECT_ID('[dbo].[Friends]', 'U') IS NOT NULL
-DROP TABLE [dbo].[Friends]
-GO
-
-
-CREATE TABLE [dbo].[Bands]
+CREATE TABLE Bands
 (
     [BandId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
     [BandName] NVARCHAR(255) NOT NULL
@@ -57,7 +56,7 @@ CREATE TABLE [dbo].[Bands]
 GO
 
 
-CREATE TABLE [dbo].[Albums]
+CREATE TABLE Albums
 (
     [AlbumId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
     [BandId] INT NOT NULL,
@@ -67,7 +66,7 @@ CREATE TABLE [dbo].[Albums]
 GO
 
 
-CREATE TABLE [dbo].[Friends]
+CREATE TABLE Friends
 (
     [FriendId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
     [FriendName] NVARCHAR(255)
@@ -75,7 +74,7 @@ CREATE TABLE [dbo].[Friends]
 GO
 
 
-CREATE TABLE [dbo].[Loans]
+CREATE TABLE Loans
 (
     [FriendId] INT NOT NULL,
     [AlbumId] INT NOT NULL,
@@ -93,11 +92,11 @@ GO
 ******************************************************/
 
 
-CREATE NONCLUSTERED INDEX IX_FriendName ON [dbo].[Friends] ([FriendName] DESC)
+CREATE NONCLUSTERED INDEX IX_FriendName ON Friends (FriendName DESC)
 GO
 
 
-CREATE NONCLUSTERED INDEX IX_BandName ON [dbo].[Bands] ([BandName] DESC)
+CREATE NONCLUSTERED INDEX IX_BandName ON Bands (BandName DESC)
 GO
 
 
@@ -108,34 +107,34 @@ GO
 ******************************************************/
 
 
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'ReadAlbums' AND ROUTINE_TYPE = N'PROCEDURE')
-DROP PROCEDURE dbo.ReadAlbums
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'ReadAlbums' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE ReadAlbums
 GO
 
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'CreateAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
-DROP PROCEDURE dbo.CreateAlbum
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'CreateAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE CreateAlbum
 GO
 
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'DeleteAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
-DROP PROCEDURE dbo.DeleteAlbum
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'DeleteAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE DeleteAlbum
 GO
 
-IF EXISTS ( SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'UpdateAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
-DROP PROCEDURE dbo.UpdateAlbum
+IF EXISTS ( SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'UpdateAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE UpdateAlbum
 GO
 
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'LoanAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
-DROP PROCEDURE dbo.LoanAlbum
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'LoanAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE LoanAlbum
 GO
 
-IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_SCHEMA = N'dbo' AND SPECIFIC_NAME = N'ReturnAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
-DROP PROCEDURE dbo.ReturnAlbum
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'ReturnAlbum' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE ReturnAlbum
 GO
 
 
 
 
-CREATE PROCEDURE dbo.ReadAlbums @BandName NVARCHAR(255) = NULL, @FriendName NVARCHAR(255) = NULL AS
+CREATE PROCEDURE ReadAlbums @BandName NVARCHAR(255) = NULL, @FriendName NVARCHAR(255) = NULL AS
 BEGIN
     IF @FriendName IS NULL
     BEGIN
@@ -162,7 +161,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE dbo.CreateAlbum @AlbumName NVARCHAR(255), @BandName NVARCHAR(255) AS
+CREATE PROCEDURE CreateAlbum @AlbumName NVARCHAR(255), @BandName NVARCHAR(255) AS
 BEGIN
     BEGIN TRY
     IF((@BandName IS NULL OR @AlbumName IS NULL) OR (@BandName = '' OR @AlbumName = ''))
@@ -195,7 +194,7 @@ END
 GO
 
 
-CREATE PROCEDURE dbo.DeleteAlbum @AlbumName NVARCHAR(255) AS
+CREATE PROCEDURE DeleteAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId;
@@ -205,13 +204,13 @@ GO
 
 
 
-CREATE PROCEDURE dbo.UpdateAlbum @OldAlbumName NVARCHAR(255), @NewAlbumName NVARCHAR(255) AS
+CREATE PROCEDURE UpdateAlbum @OldAlbumName NVARCHAR(255), @NewAlbumName NVARCHAR(255) AS
 BEGIN
     UPDATE Albums SET Albums.AlbumName = @NewAlbumName WHERE Albums.AlbumName = @OldAlbumName
 END
 GO
 
-CREATE PROCEDURE dbo.LoanAlbum
+CREATE PROCEDURE LoanAlbum
     @AlbumName NVARCHAR(255),
     @FriendName NVARCHAR(255)
 AS
@@ -235,7 +234,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE dbo.ReturnAlbum @AlbumName NVARCHAR(255) AS
+CREATE PROCEDURE ReturnAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId
