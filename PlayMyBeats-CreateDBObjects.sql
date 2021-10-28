@@ -1,4 +1,4 @@
-/* PlayMyBeats-Createpmbbjects.sql
+/* PlayMyBeats-CreateDBObjects.sql
  * Author: Jeff Dillon
  * Date Created: 10/3/2021
  * Description: DDL PlayMyBeats app
@@ -50,7 +50,7 @@ IF OBJECT_ID('Friends', 'U') IS NOT NULL
 
 CREATE TABLE Bands
 (
-    [BandId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
+    [BandId] INT NOT NULL IDENTITY PRIMARY KEY, 
     [BandName] NVARCHAR(255) NOT NULL
 );
 GO
@@ -58,7 +58,7 @@ GO
 
 CREATE TABLE Albums
 (
-    [AlbumId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
+    [AlbumId] INT NOT NULL IDENTITY PRIMARY KEY, 
     [BandId] INT NOT NULL,
     [AlbumName] NVARCHAR(255),
     FOREIGN KEY(BandId) REFERENCES Bands(BandId)
@@ -68,7 +68,7 @@ GO
 
 CREATE TABLE Friends
 (
-    [FriendId] INT NOT NULL IDENTITY PRIMARY KEY, -- Primary Key column
+    [FriendId] INT NOT NULL IDENTITY PRIMARY KEY, 
     [FriendName] NVARCHAR(255)
 );
 GO
@@ -133,7 +133,18 @@ GO
 
 
 
+/** 
+    Stored Procedure: ReadAlbums 
+    Usage: Returns a result set of albums in the database optionally filtered by Band or Friend (loaned to)
+    Parameters:
+        @BandName (optional) - filters results to only include albums from a specific band
+        @FriendName (optional) - filters rsults to only include albums loaned to the specified friend
+    Returns:
+        ResultSet: BandName, AlbumName, LoanedTo, LoanedSince
+    Error Checks:
+        None
 
+**/
 CREATE PROCEDURE ReadAlbums @BandName NVARCHAR(255) = NULL, @FriendName NVARCHAR(255) = NULL AS
 BEGIN
     IF @FriendName IS NULL
@@ -161,6 +172,18 @@ BEGIN
 END
 GO
 
+/** 
+    Stored Procedure: CreateAlbum 
+    Usage: Creates a new album record. If Band does not already exist, also creates new Band record.
+    Parameters:
+        @BandName (required) - The name of the band that produced the album
+        @AlbumName (required) - The name of the album
+    Returns:
+        None
+    Error Checks:
+        Band Name and Album Name cannot be empty
+
+**/
 CREATE PROCEDURE CreateAlbum @AlbumName NVARCHAR(255), @BandName NVARCHAR(255) AS
 BEGIN
     BEGIN TRY
@@ -193,7 +216,16 @@ BEGIN
 END
 GO
 
-
+/** 
+    Stored Procedure: DeleteAlbum 
+    Usage: Deletes an album from the collection. Also removes any outstanding loans of the album.
+    Parameters:
+        @AlbumName (required) - The name of the album
+    Returns:
+        None
+    Error Checks:
+        None
+**/
 CREATE PROCEDURE DeleteAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE AlbumName = @AlbumName)
@@ -203,19 +235,47 @@ END
 GO
 
 
+/** 
+    Stored Procedure: UpdateAlbum 
+    Usage: Updates the name of the album.
+    Parameters:
+        @OldAlbumName (required) - Name of the album to be updated.
+        @NewAlbumName (required) - The new name of the album.
+    Returns:
+        None
+    Error Checks:
+        None
 
+**/
 CREATE PROCEDURE UpdateAlbum @OldAlbumName NVARCHAR(255), @NewAlbumName NVARCHAR(255) AS
 BEGIN
     UPDATE Albums SET Albums.AlbumName = @NewAlbumName WHERE Albums.AlbumName = @OldAlbumName
 END
 GO
 
+/** 
+    Stored Procedure: LoanAlbum 
+    Usage: Creates a loan record for an album. Creates a new friend record if a matching record doesn't already exist.
+    Parameters:
+        @AlbumName (required) - Name of the album to be loaned.
+        @FriendName (required) - Name of the friend to which the album is to be loaned.
+    Returns:
+        None
+    Error Checks:
+        Checks if the album is already loaned out.
+
+**/
 CREATE PROCEDURE LoanAlbum
     @AlbumName NVARCHAR(255),
     @FriendName NVARCHAR(255)
 AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName);
+    
+
+    IF NOT EXISTS (SELECT * FROM Friends WHERE FriendName = @FriendName)
+        INSERT INTO Friends VALUES (@FriendName);
+
     DECLARE @FriendId INT = (SELECT Friends.FriendId FROM Friends WHERE Friends.FriendName = @FriendName);
 
     BEGIN TRY
@@ -234,6 +294,17 @@ BEGIN
 END
 GO
 
+/** 
+    Stored Procedure: ReturnAlbum 
+    Usage: Removes a loan record for an album.
+    Parameters:
+        @AlbumName (required) - Name of the album to be returned.
+    Returns:
+        None
+    Error Checks:
+        Checks if the album is already loaned out.
+
+**/
 CREATE PROCEDURE ReturnAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName)

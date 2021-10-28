@@ -28,11 +28,15 @@ EXECUTE UpdateAlbum @OldAlbumName = "After The Goldrush", @NewAlbumName = "After
 GO
 
 -- Loan an album to a friend
-EXECUTE LoanAlbum @AlbumName = "Good News", @FriendName = "Kristie"
+EXECUTE LoanAlbum @AlbumName = "Good News", @FriendName = "Joe"
 GO
 
 -- Return an album from a friend
 EXECUTE ReturnAlbum @AlbumName = "Good News"
+GO
+
+
+SELECT * FROM Friends;
 GO
 
 

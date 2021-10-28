@@ -1,7 +1,7 @@
 # SQL Project for Code Louisville
 
 ## Introduction
-This repository is an example SQL project for the [Code Louisville](https://www.codelouisville.org/) Fall 2021 SQL course. The purpose of this code is to demonstrate the use of SQL, Unit Tests, and Git.
+This repository is an example project for the [Code Louisville](https://www.codelouisville.org/) Fall 2021 SQL course. The purpose of this code is to demonstrate the use of SQL, Unit Tests, and Git.
 
 ## Project Description
 
