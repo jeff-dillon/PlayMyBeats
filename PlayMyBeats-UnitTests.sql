@@ -10,6 +10,7 @@ PRINT N'Unit Testing for PlayMyBeats app.';
 
 /** Create a temp table to store the results **/
 CREATE TABLE #AlbumTest(Band VARCHAR(255), Album VARCHAR(255), LoanedTo VARCHAR(255), LoanedSince DATE);
+CREATE TABLE #FriendTest(FriendName VARCHAR(255), NumAlbums INT);
 
 
 /** Test 1: ReadAlbums **/
@@ -93,21 +94,37 @@ IF(@test7bBeforeNumAlbums = 0 AND @test7bAfterNumAlbums = 1)
     PRINT N'Test: LoaneAlbum[new friend] - Result: Pass';
 ELSE
     PRINT N'Test: LoanAlbum[new friend] - Result: Fail';
-DELETE FROM Loans WHERE FriendId = 3;
+DELETE FROM Loans WHERE FriendId = 4;
 
 
 /** Test 8: ReturnAlbum **/
-EXECUTE LoanAlbum @AlbumName = 'Good News', @FriendName = 'Joe';
+EXECUTE LoanAlbum @AlbumName = 'The Love Movement', @FriendName = 'Joe';
 DECLARE @test8BeforeNumAlbums INT = (SELECT COUNT(1) FROM Albums, Loans, Friends WHERE Albums.AlbumId = Loans.AlbumId AND Loans.FriendId = Friends.FriendId AND Friends.FriendName = 'Joe');
-EXECUTE ReturnAlbum @AlbumName = 'Good News';
+EXECUTE ReturnAlbum @AlbumName = 'The Love Movement';
 DECLARE @test8AfterNumAlbums INT = (SELECT COUNT(1) FROM Albums, Loans, Friends WHERE Albums.AlbumId = Loans.AlbumId AND Loans.FriendId = Friends.FriendId AND Friends.FriendName = 'Joe');
 IF(@test8BeforeNumAlbums = 1 AND @test8AfterNumAlbums = 0)
     PRINT N'Test: ReturnAlbum - Result: Pass';
 ELSE
+    BEGIN
     PRINT N'Test: ReturnAlbum - Result: Fail';
-DELETE FROM Loans WHERE FriendId = 3;
+    PRINT CONCAT('Before = ' , CONVERT(VARCHAR(10), @test8BeforeNumAlbums));
+    PRINT CONCAT('After = ' , CONVERT(VARCHAR(10), @test8AfterNumAlbums));
+    END
+
+/** Test 9: ReadLoans **/
+INSERT #FriendTest EXEC ReadLoans;
+DECLARE @test9NumRecords INT = (SELECT COUNT(1) FROM Friends, Loans WHERE Friends.FriendId = Loans.FriendId AND Friends.FriendName = 'Shawn');
+DECLARE @test9NumLoans INT = (SELECT #FriendTest.NumAlbums FROM #FriendTest WHERE #FriendTest.FriendName = 'Shawn');
+DECLARE @test9bNumRecords INT = (SELECT COUNT(1) FROM Friends, Loans WHERE Friends.FriendId = Loans.FriendId AND Friends.FriendName = 'Kristie');
+DECLARE @test9bNumLoans INT = (SELECT #FriendTest.NumAlbums FROM #FriendTest WHERE #FriendTest.FriendName = 'Kristie');
+IF((@test9NumRecords = @test9NumLoans) AND (@test9bNumRecords = @test9bNumLoans))
+    PRINT N'Test: ReadLoans - Result: Pass';
+ELSE
+    PRINT N'Test: ReadLons - Result: Fail';
 
 
-/** Clean up the temp table **/
+
+/** Clean up the temp tables **/
 DROP TABLE #AlbumTest;
+DROP TABLE #FriendTest;
 GO

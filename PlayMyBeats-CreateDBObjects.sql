@@ -131,6 +131,9 @@ IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'Ret
 DROP PROCEDURE ReturnAlbum
 GO
 
+IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = N'ReadLoans' AND ROUTINE_TYPE = N'PROCEDURE')
+DROP PROCEDURE ReadLoans
+GO
 
 
 /** 
@@ -309,5 +312,27 @@ CREATE PROCEDURE ReturnAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId
+END
+GO
+
+
+/** 
+    Stored Procedure: ReadLoans 
+    Usage: Returns a result set of the number of loans outstanding for each friend.
+    Parameters:
+        @FriendName (optional) - filters based on friend name.
+    Returns:
+        Result set: FriendName, NumAlbums
+    Error Checks:
+       None
+
+**/
+CREATE PROCEDURE ReadLoans @FriendName NVARCHAR(255) = NULL AS
+BEGIN
+    SELECT Friends.FriendName, SUM( CASE WHEN Loans.AlbumId IS NULL THEN 0 ELSE 1 END) AS NumAlbums
+    FROM Friends
+        LEFT JOIN Loans on Friends.FriendId = Loans.FriendId
+    WHERE Friends.FriendName = ISNULL(@FriendName, Friends.FriendName)
+    GROUP BY Friends.FriendName
 END
 GO

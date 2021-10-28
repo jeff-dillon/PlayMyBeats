@@ -27,6 +27,8 @@ Play My Beats is a sample database for tracking a personal vinyl album collectio
 | Edit Album in Collection | UpdateAlbum @AlbumName = "album name", @BandName = "band name" |
 | Loan Album to Friend | LoanAlbum @AlbumName = "album name", @FriendName = "friend name" |
 | Return Album from Friend | ReturnAlbum @AlbumName = "album name" |
+| List All Loans | ReadLoans |
+| List Loans by Friend | ReadLoans @FriendName = "friend name" |
 
 
 ## Technical Instructions
