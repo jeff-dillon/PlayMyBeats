@@ -32,7 +32,8 @@ This is a sample database for tracking a personal vinyl album collection and, im
 - Requires MS SQL Server
 - Execute the PlayMyBeats-CreateDBObjects.sql script to create the database objects
 - Execute the PlayMyBeats-LoadSampleData.sql script to load the sample data
-- Execute commands in the PlayMyBeats.sql file to test out the functionality
+- Execute the PlayMyBeats-UnitTests.sql file to test out the functionality
+- The PlayMyBeats.sql file has example commands showing how to use the stored procedures.
 
 ## Project Requirements
 
