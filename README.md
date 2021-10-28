@@ -1,15 +1,17 @@
 # SQL Project for Code Louisville
 
+## Introduction
+This repository is an example SQL project for the [Code Louisville](https://www.codelouisville.org/) Fall 2021 SQL course. The purpose of this code is to demonstrate the use of SQL, Unit Tests, and Git.
+
 ## Project Description
 
 **Play My Beats**
 
-This is a sample database for tracking a personal vinyl album collection and, importantly, which friends have borrowed your records. By executing stored procedures, you can list the albums in your collection, list albums borrowed by friends, add and remove albums to your collection, and loan and return albums.
+Play My Beats is a sample database for tracking a personal vinyl album collection and, importantly, which friends have borrowed your records. By executing stored procedures, you can list the albums in your collection, list albums borrowed by friends, add and remove albums to your collection, and loan and return albums.
 
 ## Features
 
 - Maintain lists of Bands, Albums, and Friends
-- Add new albums to your collection
 - Track what you have loaned to friends
 
 
