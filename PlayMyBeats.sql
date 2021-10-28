@@ -23,12 +23,15 @@ GO
 EXECUTE DeleteAlbum @AlbumName = "Harvest Moon"
 GO
 
+-- Update the name of an album in the collection
 EXECUTE UpdateAlbum @OldAlbumName = "After The Goldrush", @NewAlbumName = "After The Gold Rush"
 GO
 
+-- Loan an album to a friend
 EXECUTE LoanAlbum @AlbumName = "Good News", @FriendName = "Kristie"
 GO
 
+-- Return an album from a friend
 EXECUTE ReturnAlbum @AlbumName = "Good News"
 GO
 
