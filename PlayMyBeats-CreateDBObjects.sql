@@ -20,11 +20,9 @@
  *    UpdateAlbum @OldAlbumName, @NewAlbumName
  *    LoanAlbum @AlbumName, @FriendName
  *    ReturnAlbum @AlbumName
+ *    ReadLoans @FriendName
  *
 */
-
-SET NOCOUNT ON;
-GO
 
 
 
@@ -150,6 +148,7 @@ GO
 **/
 CREATE PROCEDURE ReadAlbums @BandName NVARCHAR(255) = NULL, @FriendName NVARCHAR(255) = NULL AS
 BEGIN
+    SET NOCOUNT ON;
     IF @FriendName IS NULL
     BEGIN
         SELECT Bands.BandName AS 'Band', Albums.AlbumName AS 'Album', 
@@ -189,6 +188,7 @@ GO
 **/
 CREATE PROCEDURE CreateAlbum @AlbumName NVARCHAR(255), @BandName NVARCHAR(255) AS
 BEGIN
+    SET NOCOUNT ON;
     BEGIN TRY
     IF((@BandName IS NULL OR @AlbumName IS NULL) OR (@BandName = '' OR @AlbumName = ''))
     BEGIN
@@ -231,6 +231,7 @@ GO
 **/
 CREATE PROCEDURE DeleteAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
+    SET NOCOUNT ON;
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId;
     DELETE FROM Albums WHERE Albums.AlbumId = @AlbumId
@@ -252,6 +253,7 @@ GO
 **/
 CREATE PROCEDURE UpdateAlbum @OldAlbumName NVARCHAR(255), @NewAlbumName NVARCHAR(255) AS
 BEGIN
+    SET NOCOUNT ON;
     UPDATE Albums SET Albums.AlbumName = @NewAlbumName WHERE Albums.AlbumName = @OldAlbumName
 END
 GO
@@ -273,6 +275,7 @@ CREATE PROCEDURE LoanAlbum
     @FriendName NVARCHAR(255)
 AS
 BEGIN
+    SET NOCOUNT ON;
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName);
     
 
@@ -310,6 +313,7 @@ GO
 **/
 CREATE PROCEDURE ReturnAlbum @AlbumName NVARCHAR(255) AS
 BEGIN
+    SET NOCOUNT ON;
     DECLARE @AlbumId INT = (SELECT Albums.AlbumId FROM Albums WHERE Albums.AlbumName = @AlbumName)
     DELETE FROM Loans WHERE Loans.AlbumId = @AlbumId
 END
@@ -322,17 +326,20 @@ GO
     Parameters:
         @FriendName (optional) - filters based on friend name.
     Returns:
-        Result set: FriendName, NumAlbums
+        Result set: FriendName, NumAlbums, AlbumNames
     Error Checks:
        None
 
 **/
 CREATE PROCEDURE ReadLoans @FriendName NVARCHAR(255) = NULL AS
 BEGIN
-    SELECT Friends.FriendName, SUM( CASE WHEN Loans.AlbumId IS NULL THEN 0 ELSE 1 END) AS NumAlbums
+    SET NOCOUNT ON;
+    SELECT Friends.FriendName, 
+        SUM( CASE WHEN Loans.AlbumId IS NULL THEN 0 ELSE 1 END) AS NumAlbums,
+        ISNULL( STUFF ( (SELECT ', ' + Albums.AlbumName FROM Albums, Loans WHERE Loans.FriendId = Friends.FriendId AND Loans.AlbumId = Albums.AlbumId FOR xml path('')),1,1,''), ' ') AS AlbumName
     FROM Friends
         LEFT JOIN Loans on Friends.FriendId = Loans.FriendId
     WHERE Friends.FriendName = ISNULL(@FriendName, Friends.FriendName)
-    GROUP BY Friends.FriendName
+    GROUP BY Friends.FriendName, Friends.FriendId
 END
 GO

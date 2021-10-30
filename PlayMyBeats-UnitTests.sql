@@ -10,7 +10,7 @@ PRINT N'Unit Testing for PlayMyBeats app.';
 
 /** Create a temp table to store the results **/
 CREATE TABLE #AlbumTest(Band VARCHAR(255), Album VARCHAR(255), LoanedTo VARCHAR(255), LoanedSince DATE);
-CREATE TABLE #FriendTest(FriendName VARCHAR(255), NumAlbums INT);
+CREATE TABLE #FriendTest(FriendName VARCHAR(255), NumAlbums INT, AlbumNames VARCHAR(255));
 
 
 /** Test 1: ReadAlbums **/
