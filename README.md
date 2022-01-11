@@ -59,3 +59,4 @@ Play My Beats is a sample database for tracking a personal vinyl album collectio
 **Group 3: Optimizing a Database**
 
 - Design a NONCLUSTERED INDEX with ONE KEY COLUMN that improves the performance of one of the above queries.
+- Here is an additional line.
